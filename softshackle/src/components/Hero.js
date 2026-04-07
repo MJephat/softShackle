@@ -30,7 +30,6 @@ export default function Hero() {
         alt="Tow truck"
         width={800}
         height={600}
-        Opacity={0.5}
         className="rounded-sm-lg shadow-md"
       />
       </div>

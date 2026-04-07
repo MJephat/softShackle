@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <nav className="flex items-center justify-between px-20 py-4 shadow-sm bg-white">
+    <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-20 py-4 shadow-sm bg-white">
       
       {/* Logo */}
       <div className="flex items-center gap-2 font-bold text-lg">
@@ -11,10 +11,10 @@ export default function Navbar() {
 
       {/* Links */}
       <div className="hidden md:flex gap-8 text-sm font-medium">
-        <Link href="#">Home</Link>
-        <Link href="#">About Us</Link>
-        <Link href="#">Services</Link>
-        <Link href="#">Contact Us</Link>
+       <Link href="/">Home</Link>
+        <Link href="#about">About Us</Link>
+        <Link href="#services">Services</Link>
+        <Link href="#contact">Contact Us</Link>
       </div>
 
       {/* CTA */}
