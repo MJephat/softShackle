@@ -17,8 +17,8 @@ const services = [
     icon: <Car size={28} />,
   },
   {
-    title: "Lockout Service",
-    desc: "Quick assistance in unlocking vehicles.",
+    title: "FlatBed Service",
+    desc: "Quick assistance in flatbed towing.",
     icon: <Wrench size={28} />,
   },
   {

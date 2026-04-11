@@ -1,3 +1,4 @@
+"use client";
 import Services from "@/components/Services";
 import About from "../components/About";
 import Features from "../components/Feature";
