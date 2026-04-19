@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { FaWhatsappSquare } from "react-icons/fa";
-import { FaP, FaPhone, FaW, FaWhatsapp } from "react-icons/fa6";
+import { FaPhone, FaWhatsapp } from "react-icons/fa6";
 
 export default function Navbar() {
 
-  const phone = "254703397128"; // no +, no spaces
+  const phone = "254703397128";
   const message = "Hello, I need towing assistance";
 
   return (
@@ -17,32 +16,60 @@ export default function Navbar() {
 
       {/* Links */}
       <div className="hidden md:flex gap-8 text-sm font-medium">
-       <Link href="/">Home</Link>
+        <Link href="/">Home</Link>
         <Link href="#about">About Us</Link>
         <Link href="#services">Services</Link>
         <Link href="#contact">Contact Us</Link>
       </div>
 
       {/* CTA */}
- 
-  <div className="flex gap-2">
-  <button
-    className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-blue-700"
-    onClick={() => window.location.href = `tel:${phone}`}
-  >
-  <FaPhone />
-  </button>
+      <div className="flex gap-3 items-center">
 
-  <button
-    onClick={() => {
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-      window.open(url, "_blank");
-    }}
-    className="bg-green-600 text-white px-5 py-2 rounded-lg shadow-md hover:bg-green-700"
-  >
-    <FaWhatsapp />
-  </button>
-</div>
+     
+
+        {/* CALL BUTTON */}
+        <button
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700"
+          onClick={() => {
+            if (window.gtag) {
+              window.gtag("event", "call_click", {
+                event_category: "engagement",
+                event_label: "Call Button",
+              });
+            }
+            window.location.href = `tel:${phone}`;
+          }}
+        >
+          <FaPhone />
+        </button>
+
+        {/* WHATSAPP BUTTON */}
+        <button
+          onClick={() => {
+            const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+            if (typeof window !== "undefined" && window.gtag) {
+              window.gtag("event", "whatsapp_click", {
+                event_category: "engagement",
+                event_label: "Hero WhatsApp Button",
+              });
+            }
+
+            window.open(url, "_blank");
+          }}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700"
+        >
+          <FaWhatsapp />
+        </button>
+
+             {/* ✅ LOGIN BUTTON */}
+        <Link
+          href="/dashboard"
+          className="border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
+        >
+          Login
+        </Link>
+      </div>
     </nav>
-  );
+  ); 
 }

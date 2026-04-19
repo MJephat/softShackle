@@ -1,4 +1,4 @@
-import { FaFacebook, FaTwitter, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaTiktok, FaTwitter, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -31,8 +31,8 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold mb-4">Working Hours</h3>
           <ul className="text-gray-400 space-y-2 text-sm">
-            <li>Weekdays: 8AM - 6PM</li>
-            <li>Saturday: 9AM - 5PM</li>
+            <li>Weekdays: 24hr</li>
+            <li>Saturday: 9AM - 8PM</li>
             <li>Sunday: Closed</li>
           </ul>
 
@@ -40,6 +40,7 @@ export default function Footer() {
             <FaTwitter />
             <FaFacebook />
             <FaYoutube />
+            <FaTiktok />    
           </div>
         </div>
 
