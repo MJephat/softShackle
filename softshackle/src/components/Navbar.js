@@ -30,13 +30,21 @@ export default function Navbar() {
         {/* CALL BUTTON */}
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700"
-          onClick={() => {
+          onClick={ async () => {
+           await fetch("/api/leads", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone, type: "call" })
+            });
+
             if (window.gtag) {
               window.gtag("event", "call_click", {
                 event_category: "engagement",
                 event_label: "Call Button",
               });
             }
+
+         
             window.location.href = `tel:${phone}`;
           }}
         >
@@ -45,8 +53,14 @@ export default function Navbar() {
 
         {/* WHATSAPP BUTTON */}
         <button
-          onClick={() => {
+          onClick={async() => {
             const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+            await fetch("/api/leads", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone, type: "whatsapp" })
+            });
 
             if (typeof window !== "undefined" && window.gtag) {
               window.gtag("event", "whatsapp_click", {
@@ -54,6 +68,8 @@ export default function Navbar() {
                 event_label: "Hero WhatsApp Button",
               });
             }
+
+        
 
             window.open(url, "_blank");
           }}

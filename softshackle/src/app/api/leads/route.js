@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
 
 // TODO: Replace with real DB (Prisma / Supabase)
 // import { prisma } from "@/lib/prisma";
@@ -6,38 +7,41 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { name, phone, service, urgency, type } = body;
+    
+    const client = await clientPromise;
+    const db = client.db("softshackle");
 
-    if (!name || !phone || !type) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
-    }
-
-    // Prisma example (uncomment when DB is set up):
-    // const lead = await prisma.lead.create({
-    //   data: { name, phone, service, urgency, type, status: "new" },
-    // });
-
-    // Mock response for now
-    const lead = {
-      id: `lead_${Date.now()}`,
-      name,
-      phone,
-      service,
-      urgency,
-      type,
+    await db.collection("leads").insertOne({
+      name: "unKnown Customer",
+      phone: body.phone,
+      service: body.service,
+      urgency: body.urgency,
+      type: body.type, // whatsapp, call, form
       status: "new",
       timestamp: new Date().toISOString(),
-    };
+    });
 
-    return NextResponse.json({ success: true, lead });
-  } catch (err) {
+    return NextResponse.json({ success: true });
+      } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
+
 export async function GET() {
-  // TODO: return leads from DB
-  // const leads = await prisma.lead.findMany({ orderBy: { createdAt: "desc" } });
-  return NextResponse.json({ leads: [] });
+  try {
+    const client = await clientPromise;
+    const db = client.db("softshackle");
+
+    const leads = await db
+      .collection("leads")
+      .find({})
+      .sort({ timestamp: -1 })
+      .toArray();
+
+    return NextResponse.json({ leads });
+  } catch (err) {
+    return NextResponse.json({ leads: [] });
+  }
 }
