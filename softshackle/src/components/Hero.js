@@ -5,6 +5,107 @@ import { useState } from "react";
 export default function Hero() {
     const [showModal, setShowModal] = useState(false);
 
+      const [form, setForm] = useState({
+          name: "",
+          phone: "",
+          location: "",
+          vehicle: "",
+          urgency: "",
+          issue: "",
+        });
+
+      const [loading, setLoading] = useState(false);
+      const [success, setSuccess] = useState(false);
+
+      const businessPhone = "254703397128";
+      // const businessPhone = "254713805349";
+
+      function updateField(key, value) {
+        setForm((prev) => ({
+          ...prev,
+          [key]: value,
+        }));
+      }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      setSuccess("");
+
+      if(
+        !form.name || 
+        !form.phone || 
+        !form.location ||
+        !form.vehicle ||
+        !form.urgency
+      ){
+        alert("Please fill in all required fields.");
+        return;
+      }
+      setLoading(true);
+
+      try{
+        const res = await fetch("/api/leads", {
+          method: "POST",
+          headers: {
+             "Content-Type": "application/json"
+             },
+          body: JSON.stringify({ 
+          name: form.name,
+          location: form.location,
+          email: form.email,
+          phone: form.phone,
+          service: form.service,
+          urgency: form.urgency, 
+          type: "form" 
+        })
+        });
+
+        const data = await res.json();
+
+         if (!res.ok) {
+        throw new Error(data.error || "Failed to submit");
+      }
+      
+      setSuccess("Request submitted successfully.");
+
+      const message = `Hello SoftShackle, my name is ${form.name}. I need towing assistance.
+          Phone: ${form.phone}
+          Location: ${form.location}
+          Vehicle: ${form.vehicle || "Not specified"}
+          Urgency: ${form.urgency}
+          Issue: ${form.issue || "Not specified"}`;
+
+             const waUrl = `https://wa.me/${businessPhone}?text=${encodeURIComponent(
+        message
+      )}`;
+
+        setTimeout(() => {
+        window.open(waUrl, "_blank");
+        setShowModal(false);
+
+           setForm({
+          name: "",
+          phone: "",
+          location: "",
+          vehicle: "",
+          urgency: "",
+          issue: "",
+        });
+
+        setSuccess("");
+      }, 1000);
+
+      } catch (error) {
+        console.error("Error submitting form:", error);
+        alert("Something went wrong. Please try again.");
+      } finally {
+        setLoading(false);
+
+      }
+    }
+
+
   return (
     <section className="relative px-20 py-10">
 
@@ -63,39 +164,106 @@ export default function Hero() {
             <h2 className="text-2xl font-bold text-center mb-6">
               Get Towing Help Now
             </h2>
+             <p className="text-sm text-zinc-500 mb-6">
+              Fill the form and we’ll contact you immediately.
+            </p>
 
             {/* FORM */}
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+         <input
+              type="text"
+              placeholder="Full Name*"
+              value={form.name}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
+              className="w-full p-3 rounded bg-white text-black"
+            />
+
+             <input
+                type="tel"
+                placeholder="Phone*"
+                value={form.phone}
+                onChange={(e) =>
+                  setForm({ ...form, phone: e.target.value })
+                }
+                className="w-full p-3 rounded bg-white text-black"
+              />
+
+                <input
+                type="location"
+                placeholder="Current Location*"
+                value={form.location}
+                onChange={(e) =>
+                  setForm({ ...form, location: e.target.value })
+                }
+                className="w-full p-3 rounded bg-white text-black"
+              />
 
               <input
                 type="text"
-                placeholder="Full Name*"
-                className="w-full p-3 rounded bg-white text-black"
-              />
-
+                placeholder="Vehicle Type (Optional)"
+                value={form.vehicle}
+                onChange={(e) =>
+                  updateField("vehicle", e.target.value)
+                }
+                  className="w-full p-3 rounded bg-white text-black"              />
+              
               <input
                 type="email"
                 placeholder="Email*"
+                value={form.email}
+                onChange={(e) =>
+                  setForm({ ...form, email: e.target.value })
+                }
                 className="w-full p-3 rounded bg-white text-black"
               />
 
-              <input
-                type="tel"
-                placeholder="Phone*"
-                className="w-full p-3 rounded bg-white text-black"
-              />
+            
 
-              <select className="w-full p-3 rounded bg-white text-black">
-                <option>Is this an Emergency*</option>
-                <option>Yes</option>
-                <option>No</option>
+              <select
+                value={form.service}
+                onChange={(e) =>
+                  setForm({ ...form, service: e.target.value })
+                }
+                className="w-full p-3 rounded bg-white text-black"
+              >
+                <option>select a service</option>
+                <option>Light Duty Towing</option>
+                <option>Medium Duty Towing</option>
+                  <option>Junk Car Towing & removal</option>
+                <option>FlatBed Service</option>
+
               </select>
 
+           
+            <select
+                value={form.urgency}
+                onChange={(e) =>
+                  updateField("urgency", e.target.value)
+                }
+              className="w-full p-3 rounded bg-white text-black"              >
+                <option value="">Is this an emergency? *</option>
+                <option value="Emergency">Yes</option>
+                <option value="Scheduled">No</option>
+              </select>
+
+      <textarea
+                rows="3"
+                placeholder="Describe the issue (Optional)"
+                value={form.issue}
+                onChange={(e) =>
+                  updateField("issue", e.target.value)
+                }
+                 className="w-full p-3 rounded bg-white text-black"              />
+
               <button
+              disabled={loading}
                 type="submit"
                 className="w-full bg-blue-600 py-3 rounded font-semibold"
               >
-                SUBMIT
+                {loading ? "Submitting..." : "SUBMIT"}
               </button>
             </form>
 

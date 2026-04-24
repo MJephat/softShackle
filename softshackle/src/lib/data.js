@@ -70,14 +70,15 @@ export const MOCK_REVIEWS = [
   },
 ];
 
-export function getInitials(name) {
-  return name
+export function getInitials(name = "") {
+  const safe = String(name || "User");
+
+  return safe
     .split(" ")
-    .filter((n) => n)
-    .map((n) => n[0])
+    .map((word) => word[0])
     .join("")
-    .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export function formatTime(iso) {

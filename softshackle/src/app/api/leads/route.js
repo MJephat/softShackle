@@ -12,7 +12,7 @@ export async function POST(req) {
     const db = client.db("softshackle");
 
     await db.collection("leads").insertOne({
-      name: "unKnown Customer",
+     name: body.name || "Unknown Customer",
       phone: body.phone,
       service: body.service,
       urgency: body.urgency,
