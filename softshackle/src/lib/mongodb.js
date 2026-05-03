@@ -10,7 +10,10 @@ let client;
 let clientPromise;
 
 if (!global._mongoClientPromise) {
-  client = new MongoClient(uri);
+  client = new MongoClient(uri,{
+    maxPoolSize: 10, // Limit concurrent connections
+  });
+
   global._mongoClientPromise = client.connect();
 }
 

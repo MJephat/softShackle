@@ -1,29 +1,37 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 
-// TODO: Replace with real DB (Prisma / Supabase)
-// import { prisma } from "@/lib/prisma";
+
 
 export async function POST(req) {
   try {
     const body = await req.json();
     
+    if (!body.phone) {
+      return NextResponse.json(
+        { error: "Phone is required" },
+        { status: 400 }
+      );
+    }
+
     const client = await clientPromise;
     const db = client.db("softshackle");
 
-    await db.collection("leads").insertOne({
-     name: body.name || "Unknown Customer",
+    const newLead = {
+      name: body.name || "Unknown Customer",
       phone: body.phone,
-      service: body.service,
-      urgency: body.urgency,
-      type: body.type, // whatsapp, call, form
+      service: body.service || null,
+      urgency: body.urgency || "normal",
+      type: body.type || "unknown",
       status: "new",
-      timestamp: new Date().toISOString(),
-    });
+      createdAt: new Date(),
+    };
 
-    return NextResponse.json({ success: true });
+    await db.collection("leads").insertOne(newLead);
+
+    return NextResponse.json({ success: true, lead: newLead });
       } catch (err) {
-    console.error(err);
+    console.error("Lead Error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -37,11 +45,13 @@ export async function GET() {
     const leads = await db
       .collection("leads")
       .find({})
-      .sort({ timestamp: -1 })
+      .sort({ createdAt: -1 })
       .toArray();
 
     return NextResponse.json({ leads });
   } catch (err) {
-    return NextResponse.json({ leads: [] });
+    console.error("Get Leads Error:", err);
+    return NextResponse.json({ leads: [], error: "Failed to fetch leads" }, 
+      { status: 500 });
   }
 }

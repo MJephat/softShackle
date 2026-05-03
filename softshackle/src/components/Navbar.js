@@ -1,7 +1,10 @@
+"use client";
 import Link from "next/link";
 import { FaPhone, FaWhatsapp } from "react-icons/fa6";
+import { useState } from "react";
 
 export default function Navbar() {
+  const [showLogin, setShowLogin] = useState(false);
 
   const phone = "254703397128";
   const message = "Hello, I need towing assistance";
@@ -79,13 +82,65 @@ export default function Navbar() {
         </button>
 
              {/* ✅ LOGIN BUTTON */}
-        <Link
-          href="/dashboard"
+        <button
+          onClick={() => setShowLogin(true)}
           className="border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition"
         >
           Login
-        </Link>
+        </button>
       </div>
+
+{/* login form modal popup */}
+      {showLogin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          
+          <div className="bg-white p-6 rounded-xl w-[350px] shadow-lg relative">
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowLogin(false)}
+              className="absolute top-2 right-3 text-gray-500 hover:text-black"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl font-bold mb-4 text-center">Admin Login</h2>
+
+            <form
+              onSubmit= {async (e) => {
+                e.preventDefault();
+                // TODO: Call your login API here
+                const res =  await fetch("/api/login", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ email, password })
+                });
+                console.log("Login submitted");
+                // router.push("/dashboard");
+              }}
+              className="flex flex-col gap-3"
+            >
+              <input type="email" placeholder="Email" className="border p-2 rounded-lg" required/>
+              <input type="password" placeholder="Password" className="border p-2 rounded-lg" required/>
+
+              <button type="submit" className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                Login
+              </button>
+            </form>
+
+            {/* Register Link */}
+            <p className="text-sm text-center mt-4">
+              Don’t have an account?{" "}
+              <Link href="/register" className="text-blue-600 hover:underline">
+                Register
+              </Link>
+            </p>
+
+          </div>
+        </div>
+      )}
     </nav>
+
+    
   ); 
 }
