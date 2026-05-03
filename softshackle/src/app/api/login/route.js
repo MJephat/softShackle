@@ -1,6 +1,7 @@
 import clientPromise from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 
 export async function POST(req) {
@@ -28,10 +29,26 @@ export async function POST(req) {
       );
     }
 
-    return NextResponse.json({ 
-        success: true, 
-        admin: { email: user.email } 
-    });
+    //create JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+     // ✅ Set cookie
+    const response = NextResponse.json({ success: true });
+
+    response.cookies.set("token", token, {
+        httpOnly: true,
+        secure: false, // true in production (HTTPS)
+        sameSite: "strict",
+        path: "/",
+        maxAge: 60 * 60 * 24, // 1 day
+        });
+
+    return response
+
 } catch (err) {
     console.error("Login Error:", err);
     return NextResponse.json(

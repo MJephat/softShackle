@@ -15,9 +15,7 @@ export function LeadsTab({ leads, onSendReview }) {
           ))}
         </div>
       </div>
-      <p className="text-xs text-zinc-600 mt-3">
-        No Twilio needed — leads captured from WhatsApp clicks, call clicks, and contact forms.
-      </p>
+     
     </div>
   );
 }

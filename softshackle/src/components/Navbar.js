@@ -2,9 +2,24 @@
 import Link from "next/link";
 import { FaPhone, FaWhatsapp } from "react-icons/fa6";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function Navbar() {
+
+  const router = useRouter();
+
   const [showLogin, setShowLogin] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
+
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const phone = "254703397128";
   const message = "Hello, I need towing assistance";
@@ -104,38 +119,119 @@ export default function Navbar() {
               ✕
             </button>
 
-            <h2 className="text-xl font-bold mb-4 text-center">Admin Login</h2>
+            <h2 className="text-xl font-bold mb-4 text-center">{isRegister ? "Register" : "Login"}</h2>
 
             <form
-              onSubmit= {async (e) => {
+            onSubmit={async (e) => {
                 e.preventDefault();
-                // TODO: Call your login API here
-                const res =  await fetch("/api/login", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email, password })
-                });
-                console.log("Login submitted");
-                // router.push("/dashboard");
+                setError("");
+
+                if (isRegister && password !== confirmPassword) {
+                  return setError("Passwords do not match");
+                }
+
+                try {
+                  setLoading(true);
+
+                  const endpoint = isRegister ? "/api/register" : "/api/login";
+
+                  const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      username,
+                      email,
+                      password,
+                    }),
+                  });
+
+                  const data = await res.json();
+
+                  if (!res.ok) {
+                    setError(data.error || "Something went wrong");
+                    return;
+                  }
+
+                  // ✅ SUCCESS
+                  setShowLogin(false);
+
+                  // clear form
+                  setEmail("");
+                  setPassword("");
+                  setUsername("");
+                  setConfirmPassword("");
+
+                  router.push("/dashboard");
+
+                } catch (err) {
+                  setError("Network error");
+                } finally {
+                  setLoading(false);
+                }
               }}
               className="flex flex-col gap-3"
             >
-              <input type="email" placeholder="Email" className="border p-2 rounded-lg" required/>
-              <input type="password" placeholder="Password" className="border p-2 rounded-lg" required/>
+              {isRegister && (
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    className="border p-2 rounded-lg"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                )}
 
-              <button type="submit" className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
-                Login
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="border p-2 rounded-lg"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="border p-2 rounded-lg"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+
+                {isRegister && (
+                  <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    className="border p-2 rounded-lg"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                )}
+
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? "Processing..." : isRegister ? "Register" : "Login"}
               </button>
             </form>
 
             {/* Register Link */}
-            <p className="text-sm text-center mt-4">
-              Don’t have an account?{" "}
-              <Link href="/register" className="text-blue-600 hover:underline">
-                Register
-              </Link>
+            <p className="text-sm text-center mt-3">
+              {isRegister ? "Already have an account?" : "No account?"}
+              <button
+                onClick={() => setIsRegister(!isRegister)}
+                className="text-blue-600 ml-1"
+              >
+                {isRegister ? "Login" : "Register"}
+              </button>
             </p>
-
           </div>
         </div>
       )}
