@@ -36,7 +36,7 @@ export default function Hero() {
         !form.name || 
         !form.phone || 
         !form.location ||
-        !form.vehicle ||
+        // !form.vehicle ||
         !form.urgency
       ){
         alert("Please fill in all required fields.");

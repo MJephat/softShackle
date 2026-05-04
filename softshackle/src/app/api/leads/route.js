@@ -24,7 +24,12 @@ export async function POST(req) {
       urgency: body.urgency || "normal",
       type: body.type || "unknown",
       status: "new",
-      createdAt: new Date(),
+      timestamp: new Date(),
+
+        // ✅ NEW FIELDS
+      reviewRequested: false,
+      rating: null,
+      feedback: null,
     };
 
     await db.collection("leads").insertOne(newLead);
@@ -48,7 +53,12 @@ export async function GET() {
       .sort({ createdAt: -1 })
       .toArray();
 
-    return NextResponse.json({ leads });
+      const formatted = leads.map((lead) => ({
+      ...lead,
+      _id: lead._id.toString(), // ✅ VERY IMPORTANT
+    }));
+
+    return NextResponse.json({ leads: formatted });
   } catch (err) {
     console.error("Get Leads Error:", err);
     return NextResponse.json({ leads: [], error: "Failed to fetch leads" }, 

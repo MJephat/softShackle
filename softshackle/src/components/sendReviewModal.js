@@ -9,8 +9,13 @@ export function SendReviewModal({
   onClose,
 }) {
   const [copied, setCopied] = useState(false);
-  const link = `${typeof window !== "undefined" ? window.location.origin : ""}/rate?leadId=${lead.id}`;
+  const link = lead?._id
+              ? `${window.location.origin}/rate?leadId=${lead._id}`
+              : "";
 
+              console.log("LEAD:", lead);
+
+              
   function copyLink() {
     navigator.clipboard.writeText(link);
     setCopied(true);

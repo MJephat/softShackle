@@ -119,7 +119,7 @@ export default function Dashboard() {
               </div>
             )}
 
-        {activeTab === "review" && <ReviewFunnelTab />}
+        {activeTab === "review" && <ReviewFunnelTab leads={leads} />}
         {activeTab === "phases" && <BuildPhasesTab />}
 
         {reviewTarget && (
