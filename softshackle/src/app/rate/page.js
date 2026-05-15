@@ -1,21 +1,26 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
 
-export default function RatePage() {
-  const params = useSearchParams();
-  const leadId = params.get("leadId");
+function RateContent() {
+  const searchParams = useSearchParams();
+
+  const leadId = searchParams.get("leadId");
 
   const [selected, setSelected] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   async function submitRating() {
-    if (!selected || !leadId) return;
+    if (!selected) {
+      alert("Please select a rating");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      setLoading(true);
-
       const res = await fetch("/api/review", {
         method: "POST",
         headers: {
@@ -27,65 +32,87 @@ export default function RatePage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
 
-      // ✅ AFTER SUCCESS
+      if (!res.ok) {
+        throw new Error(data.error || "Failed");
+      }
+
+      setSubmitted(true);
+
+      // Positive reviews
       if (selected >= 4) {
-        window.location.href = "https://g.page/r/YOUR_GOOGLE_LINK";
-      } else {
+        window.location.href =
+          "https://g.page/r/YOUR_GOOGLE_REVIEW_LINK/review";
+      }
+
+      // Negative reviews
+      if (selected <= 3) {
         window.location.href = `/feedback?leadId=${leadId}`;
       }
 
     } catch (err) {
-      alert("Something went wrong. Try again.");
+      console.error(err);
+      alert("Failed to submit review");
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4">
-
-      <h1 className="text-xl font-bold mb-4 text-center">
-        How was your experience?
-      </h1>
-
-      {/* ⭐ STAR SELECTOR */}
-      <div className="flex gap-3 text-4xl mb-6">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            onClick={() => setSelected(star)}
-            className={`transition ${
-              selected >= star ? "scale-110" : "opacity-40"
-            }`}
-          >
-            ⭐
-          </button>
-        ))}
+  if (submitted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <h1 className="text-2xl font-bold">
+          Thank you for your feedback 🙏
+        </h1>
       </div>
+    );
+  }
 
-      {/* ✅ SELECTED TEXT */}
-      {selected > 0 && (
-        <p className="text-sm mb-4">
-          You selected {selected} star{selected > 1 && "s"}
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full text-center">
+
+        <h1 className="text-3xl font-bold mb-4">
+          Rate Your Experience
+        </h1>
+
+        <p className="text-gray-600 mb-6">
+          How was our towing service?
         </p>
-      )}
 
-      {/* 🚀 SUBMIT BUTTON */}
-      <button
-        onClick={submitRating}
-        disabled={!selected || loading}
-        className="bg-black text-white px-6 py-2 rounded disabled:opacity-50"
-      >
-        {loading ? "Submitting..." : "Submit Review"}
-      </button>
+        <div className="flex justify-center gap-3 text-4xl mb-6">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              onClick={() => setSelected(star)}
+              className={
+                star <= selected
+                  ? "text-yellow-500"
+                  : "text-gray-300"
+              }
+            >
+              ★
+            </button>
+          ))}
+        </div>
 
-      {!leadId && (
-        <p className="text-red-500 mt-4 text-sm">
-          Invalid review link
-        </p>
-      )}
+        <button
+          onClick={submitRating}
+          disabled={loading}
+          className="w-full bg-black text-white py-3 rounded-lg"
+        >
+          {loading ? "Submitting..." : "Submit Review"}
+        </button>
+      </div>
     </div>
+  );
+}
+
+export default function RatePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RateContent />
+    </Suspense>
   );
 }
